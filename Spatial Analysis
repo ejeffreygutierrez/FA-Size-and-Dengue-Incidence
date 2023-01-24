@@ -1,0 +1,57 @@
+library(ape)
+library(geosphere)
+
+data <- read.csv("FA DI1 spatial.csv")
+head (data)
+
+invDist <- function(data, year, month){
+  spatial <- data[data$Year == year & data$Month == month,]
+  spatial.dists <- as.matrix(dist(cbind(spatial$Long, spatial$Lat)))
+  spatial.dists.inv <- 1/spatial.dists
+  diag(spatial.dists.inv) <- 0
+  spatial.dists.inv[is.infinite(spatial.dists.inv)] <- 0
+  return(spatial.dists.inv)
+}
+
+Aug13.dists.inv <- invDist(HMO,2013,"August")
+Sep13.dists.inv <- invDist(HMO,2013,"September")
+July13.dists.inv <- invDist(HMO,2013,"July")
+
+Aug14.dists.inv <- invDist(HMO,2014,"August")
+Sep14.dists.inv <- invDist(HMO,2014,"September")
+Oct14.dists.inv <- invDist(HMO,2014,"October")
+
+Moran.I(HMO$size.class[HMO$Year == 2013 & HMO$Month == "August"], Aug13.dists.inv)
+Moran.I(HMO$size.class[HMO$Year == 2013 & HMO$Month == "September"], Sep13.dists.inv)
+Moran.I(HMO$size.class[HMO$Year == 2013 & HMO$Month == "July"], July13.dists.inv)
+
+Moran.I(HMO$size.class[HMO$Year == 2014 & HMO$Month == "August"], Aug14.dists.inv)
+Moran.I(HMO$size.class[HMO$Year == 2014 & HMO$Month == "September"], Sep14.dists.inv)
+Moran.I(HMO$size.class[HMO$Year == 2014 & HMO$Month == "October"], Oct14.dists.inv)
+
+##### by year ####
+  
+data <- read.csv("Asymmetry, 2010-14.csv")
+head (data)
+
+invDist <- function(data, year){
+  spatial <- data[data$Year == year,]
+  spatial.dists <- as.matrix(dist(cbind(spatial$Long, spatial$Lat)))
+  spatial.dists.inv <- 1/spatial.dists
+  diag(spatial.dists.inv) <- 0
+  spatial.dists.inv[is.infinite(spatial.dists.inv)] <- 0
+  return(spatial.dists.inv)
+}
+#dists.inv.13 <- invDist(data,2013)
+
+dists.inv.14 <- invDist(data,2014)
+
+#dists.inv.15 <- invDist(HMO,2015)
+#Moran.I(data$FA.DI1[data$Year == 2013], na.rm = TRUE, dists.inv.13)
+
+Moran.I(data$Minor.Axis.FA[data$Year == 2014], na.rm = TRUE, dists.inv.14)
+
+#Moran.I(HMO$Length[HMO$Year == 2015], dists.inv.15)
+
+
+
