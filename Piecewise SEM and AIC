@@ -1,0 +1,61 @@
+data <- read.csv(file="den incidence 2013-2014 at 250m.csv")
+
+###for non-normally distributed data: (piecewiseSEM)
+library(ggplot2)
+library(car)
+
+#for pathway analysis #
+
+library(car)
+library(QuantPsyc)
+library(ggm)
+library(semPlot)
+library(lavaan)
+library(nlme)
+library(devtools)
+
+head(data)
+summary(data)
+
+#multiple regression#
+
+#fit the pieces
+lengthLM <- lm(avg.temp ~ Avg.length.ALL.ages, data=data)
+length2LM <- lm(avg.WVP ~ Avg.Prev1wk.Temp...sept.only, data =data)
+cases <- lm(Dengue.500m ~ avg.temp + avg.WVP + avg...fems...all + Avg.length.ALL.ages + FA.DI1, data =data)
+
+head(data)
+
+#evaluate the pieces
+Anova(lengthLM)
+Anova(length2LM)
+Anova(cases)
+
+
+#standardized coefficients and r2#
+lm.beta(lengthLM)
+lm.beta(length2LM)
+lm.beta(cases)
+
+
+summary(lengthLM)$r.squared
+summary(length2LM)$r.squared
+summary(cases)$r.squared
+
+##Determining AIC
+
+library(AICcmodavg)
+
+model1 <- lm(Dengue.500m ~ avg.WVP + avg.temp + avg...fems...all + FA.DI1 + Avg.parous.length.by.site, data =data)
+model2 <- lm(Dengue.500m ~ avg.WVP + avg.temp + avg...fems...all + FA.DI1 + Avg.length.ALL.ages, data =data)
+model3 <- lm(Dengue.500m ~ avg.WVP + avg.temp + avg...fems...all + FA.DI1 + Avg.Length.OLD, data =data)
+#model4 <- lm(Dengue.500m ~ avg.WVP + avg.temp + avg...fems...all + Avg.parous.length.by.site + FA.DI1, data =data)
+
+#define list of models
+models <- list(model1, model2, model3)
+
+#specify model names
+mod.names <- c('parous', 'all', 'old')
+
+#calculate AIC of each model
+aictab(cand.set = models, modnames = mod.names)
