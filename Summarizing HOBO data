@@ -1,0 +1,88 @@
+####downloaded packages data.table, chron, and car######
+
+###Reading in Master Data#####
+library(data.table)
+hobo = read.csv(file = "2013_hermosillo.csv", col.names = c("DateTime", "Temp", "RH", "Site", "City", "Year"))
+hobo = hobo[,-5]
+hobo$Date = sapply(strsplit(as.character(hobo$DateTime), " "), "[",1)
+hobo$Time = sapply(strsplit(as.character(hobo$DateTime), " "), "[",2)
+hobo = hobo[,-1]
+
+####Change Values below for Site and Date to work with other parts of the dataset#####
+sub = subset(hobo, hobo$Site == 2 & hobo$Date %between% c("8/16/13", "8/23/13"))
+
+maximum = vector()
+minimum = vector()
+
+for(i in 1:length(unique(sub$Date))) {
+j = unique(sub$Date)
+maximum[i] = max(subset(sub$Temp, sub$Date == j[i]))
+minimum[i] = min(subset(sub$Temp, sub$Date == j[i]))
+}
+
+spread = maximum - minimum
+avgMax = mean(maximum)
+avgMin = mean(minimum)
+
+#######Double Loop Functional#####
+### the code below loops through the data and generates two dataframes called dfM and dfm that have the max and the min for each site (across the top columns) and for each day in the date range specified below. If you want to change your data to a different date range (age cohort) is to modify the parameter named "daterange" below, then select it and all the code below it and run it. You can call dfM, dfm and spreads to access the data. -Inf values are because for some dates that don't have temp data
+### To run different files ( different years and different city/sites), then you'll need to load them in up at the top of this page by modifying the read.csv command.
+
+##Modify the parameter below to change your age cohorts###########
+daterange = c("8/16/13", "8/23/13")
+
+###Setting up dummy lists and some constants.
+dataM = list()
+datam = list()
+k = unique(hobo$Site)
+
+#double for-loop## 
+
+for(l in 1:length(unique(hobo$Site))) {
+sub1 = subset(hobo, hobo$Site == k[l])
+sub = subset(sub1, sub1$Date %between% daterange)
+	for(i in 1:length(unique(sub$Date))) {
+	j = unique(sub$Date)
+	maximum[i] = max(subset(sub$Temp, sub$Date == j[i]))
+	minimum[i] = min(subset(sub$Temp, sub$Date == j[i]))
+}
+dataM[[l]] = maximum[-9] 
+datam[[l]] = minimum[-9]
+
+}
+
+#Cleaning up transposing the dataframe, adding site names as column headers and creating the spread dataframe
+dfM = do.call("rbind", dataM)
+dfM = t(dfM)
+colnames(dfM) = k
+
+dfm = do.call("rbind", datam)
+dfm = t(dfm)
+colnames(dfm) = k
+
+spreads = dfM-dfm
+
+
+#########
+
+> library(data.table)
+> herm2013 = read.csv(file = "Complete_HOBO_data_H_2013", col.names = c("DateTime", "Temp", "RH", "Site", "City"))
+
+library(data.table)
+herm2013 = read.csv(file = "Complete_HOBO_data_H_2013.csv", col.names = c("DateTime", "Temp", "RH", "Site", "City"))
+
+head(test) = read.csv(file = "Complete_HOBO_data_H_2013.csv", col.names = c("DateTime", "Temp", "RH", "Site", "City"))
+head(herm2013) = read.csv(file = "Complete_HOBO_data_H_2013.csv", col.names = c("DateTime", "Temp", "RH", "Site", "City"))
+
+head(herm2013)
+
+herm2013 = herm2013[,-5]
+herm2013$Date = sapply(strsplit(as.character(tuc2013$DateTime), " "), "[",1)
+herm2013$Time = sapply(strsplit(as.character(tuc2013$DateTime), " "), "[",2)
+herm2013 = herm2013[,-1]
+
+
+
+
+
+
